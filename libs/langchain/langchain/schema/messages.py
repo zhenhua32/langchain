@@ -81,6 +81,7 @@ class BaseMessage(Serializable):
         return True
 
     def __add__(self, other: Any) -> ChatPromptTemplate:
+        # 是和拼接的
         from langchain.prompts.chat import ChatPromptTemplate
 
         prompt = ChatPromptTemplate(messages=[self])
