@@ -614,6 +614,7 @@ class BaseChatModel(BaseLanguageModel[BaseMessage], ABC):
         run_manager: Optional[CallbackManagerForLLMRun] = None,
         **kwargs: Any,
     ) -> ChatResult:
+        # 这个是要子类实现的
         """Top Level call"""
 
     async def _agenerate(
@@ -757,9 +758,13 @@ class SimpleChatModel(BaseChatModel):
         run_manager: Optional[CallbackManagerForLLMRun] = None,
         **kwargs: Any,
     ) -> ChatResult:
+        # 调用 _call 方法, 返回字符串
         output_str = self._call(messages, stop=stop, run_manager=run_manager, **kwargs)
+        # 封装下模型返回的字符串
         message = AIMessage(content=output_str)
+        # 再封装下
         generation = ChatGeneration(message=message)
+        # 最后组成 ChatResult
         return ChatResult(generations=[generation])
 
     @abstractmethod
@@ -770,6 +775,7 @@ class SimpleChatModel(BaseChatModel):
         run_manager: Optional[CallbackManagerForLLMRun] = None,
         **kwargs: Any,
     ) -> str:
+        # 需要子类实现
         """Simpler interface."""
 
     async def _agenerate(
@@ -779,7 +785,9 @@ class SimpleChatModel(BaseChatModel):
         run_manager: Optional[AsyncCallbackManagerForLLMRun] = None,
         **kwargs: Any,
     ) -> ChatResult:
+        # 也就是说参数都已经预先传入了, 所以异步调用的时候不需要传入
         func = partial(
             self._generate, messages, stop=stop, run_manager=run_manager, **kwargs
         )
+        # 具体执行, 异步执行
         return await asyncio.get_event_loop().run_in_executor(None, func)
